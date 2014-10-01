@@ -172,15 +172,15 @@ public class CameraRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFr
                 if (psize.get(i).width < width || psize.get(i).height < height)
                     break;
             }
-            if (i > 0)
+            if (i > 0) {
                 i--;
+            }
             param.setPreviewSize(psize.get(i).width, psize.get(i).height);
             //Log.i("mr","ssize: "+psize.get(i).width+", "+psize.get(i).height);
         }
         param.set("orientation", "landscape");
         mCamera.setParameters(param);
         mCamera.startPreview();
-
     }
 
     /**

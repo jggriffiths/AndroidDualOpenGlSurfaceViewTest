@@ -22,6 +22,7 @@ public class MyActivity extends Activity {
         //setContentView(R.layout.activity_my);
         cView = new CameraView(this);
         sView = new GLSurfaceView(this);
+        sView.setEGLContextClientVersion(1);
         sView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         sView.setRenderer(new SquareRender());
         sView.getHolder().setFormat(PixelFormat.RGBA_8888);
@@ -69,28 +70,6 @@ public class MyActivity extends Activity {
         }
         public void surfaceDestroyed(SurfaceHolder holder) {
             mRenderer.close();
-            super.surfaceDestroyed(holder);
-        }
-        public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-            super.surfaceChanged(holder, format, w, h);
-        }
-    }
-
-    // View
-    class SquareView extends GLSurfaceView {
-        SquareRender mRenderer;
-
-        SquareView(Context context) {
-            super(context);
-            mRenderer = new SquareRender();
-            setEGLContextClientVersion(1);
-            setRenderer(mRenderer);
-            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        }
-        public void surfaceCreated(SurfaceHolder holder) {
-            super.surfaceCreated(holder);
-        }
-        public void surfaceDestroyed(SurfaceHolder holder) {
             super.surfaceDestroyed(holder);
         }
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
