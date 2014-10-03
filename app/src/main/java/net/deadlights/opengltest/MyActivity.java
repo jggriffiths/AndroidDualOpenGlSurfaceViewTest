@@ -3,24 +3,36 @@ package net.deadlights.opengltest;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
+import android.view.TextureView;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 
-public class MyActivity extends Activity {
+public class MyActivity extends Activity implements TextureView.SurfaceTextureListener{
 
-    CameraView cView;
+    TextureView cView;
     GLSurfaceView sView;
+    Camera _camera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_my);
-        cView = new CameraView(this);
+        GetCameraInstance();
+        FrameLayout fl = new FrameLayout(this);
+        setContentView(fl);
+
+        cView = new TextureView(this);
+        cView.setSurfaceTextureListener(this);
+
         sView = new GLSurfaceView(this);
         sView.setEGLContextClientVersion(1);
         sView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
@@ -28,10 +40,13 @@ public class MyActivity extends Activity {
         sView.getHolder().setFormat(PixelFormat.RGBA_8888);
         sView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         sView.setZOrderOnTop(true);
-        setContentView(cView);
-        //this.addContentView(sView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        this.addContentView(sView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+        fl.addView(cView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        fl.addView(sView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        Button b = new Button(this);
+        b.setText("Hello");
+        b.setGravity(Gravity.CENTER);
+        fl.addView(b, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
     }
 
 
@@ -54,26 +69,50 @@ public class MyActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    // View
-    class CameraView extends GLSurfaceView {
-        CameraRender mRenderer;
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        try {
+            _camera.setPreviewTexture(surface);
+        }
+        catch (Exception e){}
+    }
 
-        CameraView(Context context) {
-            super(context);
-            mRenderer = new CameraRender(this);
-            setEGLContextClientVersion(2);
-            setRenderer(mRenderer);
-            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        _camera.stopPreview();
+        _camera.release();
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
+
+    /** A safe way to get an instance of the Camera object. */
+    public void GetCameraInstance()
+    {
+        _camera = null;
+        try
+        {
+            _camera = Camera.open(); // attempt to get a Camera instance
+            Camera.Parameters param = _camera.getParameters();
+            Camera.Size pSize = param.getPreviewSize();
+            param.setPreviewSize(pSize.width, pSize.height);
+            param.setFocusMode("continuous-video");
+            //Log.i("mr","ssize: "+psize.get(i).width+", "+psize.get(i).height);
+            param.set("orientation", "landscape");
+            _camera.setParameters(param);
+            _camera.startPreview();
         }
-        public void surfaceCreated(SurfaceHolder holder) {
-            super.surfaceCreated(holder);
-        }
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            mRenderer.close();
-            super.surfaceDestroyed(holder);
-        }
-        public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-            super.surfaceChanged(holder, format, w, h);
+        catch (Exception e)
+        {
+            // Camera is not available (in use or does not exist)
         }
     }
 }
