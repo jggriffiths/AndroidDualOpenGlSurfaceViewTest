@@ -15,6 +15,7 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 
 public class MyActivity extends Activity implements TextureView.SurfaceTextureListener{
@@ -43,10 +44,9 @@ public class MyActivity extends Activity implements TextureView.SurfaceTextureLi
 
         fl.addView(cView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         fl.addView(sView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        Button b = new Button(this);
-        b.setText("Hello");
-        b.setGravity(Gravity.CENTER);
-        fl.addView(b, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        RelativeLayout rl = (RelativeLayout)this.getLayoutInflater().inflate(R.layout.bob, null);
+        fl.addView(rl);
     }
 
 
